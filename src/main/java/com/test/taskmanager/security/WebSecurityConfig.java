@@ -12,6 +12,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
+/**
+ * Security configuration class for http requests.
+ */
 @Configuration
 @EnableWebSecurity
 @RequiredArgsConstructor
