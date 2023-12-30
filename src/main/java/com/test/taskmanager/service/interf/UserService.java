@@ -1,11 +1,11 @@
 package com.test.taskmanager.service.interf;
 
-import com.test.taskmanager.dto.user.LoginDto;
-import com.test.taskmanager.dto.user.RegisterDto;
+import com.test.taskmanager.dto.user.LoginDTO;
+import com.test.taskmanager.dto.user.RegisterDTO;
 
 public interface UserService {
 
-    boolean register(RegisterDto register);
-    void login(LoginDto login);
+    boolean register(RegisterDTO register);
+    void login(LoginDTO login);
 
 }

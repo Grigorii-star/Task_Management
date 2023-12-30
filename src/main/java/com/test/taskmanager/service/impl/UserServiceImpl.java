@@ -1,7 +1,7 @@
 package com.test.taskmanager.service.impl;
 
-import com.test.taskmanager.dto.user.LoginDto;
-import com.test.taskmanager.dto.user.RegisterDto;
+import com.test.taskmanager.dto.user.LoginDTO;
+import com.test.taskmanager.dto.user.RegisterDTO;
 import com.test.taskmanager.entity.User;
 import com.test.taskmanager.enums.Role;
 import com.test.taskmanager.repository.UserRepository;
@@ -24,7 +24,7 @@ public class UserServiceImpl implements UserService {
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     @Override
-    public boolean register(RegisterDto register) {
+    public boolean register(RegisterDTO register) {
         Optional<User> foundedUser = userRepository.findByEmail(register.getEmail());
 
         if (foundedUser.isEmpty()) {
@@ -45,7 +45,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void login(LoginDto login) {
+    public void login(LoginDTO login) {
         authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         login.getEmail(),
