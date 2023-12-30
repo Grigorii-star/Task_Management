@@ -1,19 +1,19 @@
-package com.test.taskmanager.dto.user;
+package com.test.taskmanager.dto.task;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class UserDto {
+public class TasksDTO {
 
-    private Long id;
-    private String firstName;
-    private String lastName;
-    private String email;
+    private Long count;
+    private List<TaskDTO> tasks;
 
 }

@@ -1,7 +1,7 @@
 package com.test.taskmanager.controller;
 
-import com.test.taskmanager.dto.user.LoginDto;
-import com.test.taskmanager.dto.user.RegisterDto;
+import com.test.taskmanager.dto.user.LoginDTO;
+import com.test.taskmanager.dto.user.RegisterDTO;
 import com.test.taskmanager.service.interf.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,7 +17,7 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register (@RequestBody RegisterDto register) {
+    public ResponseEntity<?> register (@RequestBody RegisterDTO register) {
         if (userService.register(register)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
         } else {
@@ -26,7 +26,7 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody LoginDto login) {
+    public ResponseEntity<?> login(@RequestBody LoginDTO login) {
         userService.login(login);
         return new ResponseEntity<>(HttpStatus.OK);
     }
