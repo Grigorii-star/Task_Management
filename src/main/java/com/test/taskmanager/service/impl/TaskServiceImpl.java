@@ -37,8 +37,7 @@ public class TaskServiceImpl implements TaskService {
         Task task = taskRepository.save(newTask);
 
         if (properties.getPerformerId() != null) {
-            User taskPerformer = userRepository.findById(properties.getPerformerId())
-                    .orElseThrow(() -> new UserNotFoundException("User not found"));
+            User taskPerformer = findUser(properties.getPerformerId());
             taskPerformer.setTask(newTask);
             userRepository.save(taskPerformer);
         }
@@ -49,8 +48,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+        Task task = findTask(taskId);
 
         log.info("In get task - task with id {}, successfully founded.", taskId);
         return taskMapper.taskToTaskDTO(task);
@@ -58,8 +56,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TasksDTO getTasks(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
+        User user = findUser(userId);
         List<Task> taskList = (List<Task>) user.getTasks();
         Integer tasksCount = taskList.size();
 
@@ -72,8 +69,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO updateTask(Long taskId, CreateOrUpdateTaskDTO properties) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+        Task task = findTask(taskId);
         Task newTask = taskMapper.createOrUpdateTaskDtoToTask(properties);
         newTask.setId(task.getId());
         newTask.setUser(task.getUser());
@@ -85,11 +81,18 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void removeTask(Long taskId) {
-        Task task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+        Task task = findTask(taskId);
         taskRepository.delete(task);
 
         log.info("In remove task - task successfully deleted.");
     }
 
+    private User findUser(Long userId) {
+        return userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+    private Task findTask(Long taskId) {
+        return taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
+    }
 }
