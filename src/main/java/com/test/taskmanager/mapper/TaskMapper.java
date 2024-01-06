@@ -1,5 +1,6 @@
 package com.test.taskmanager.mapper;
 
+import com.test.taskmanager.dto.task.CreateOrUpdateTaskDTO;
 import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.entity.Task;
 import org.mapstruct.Mapper;
@@ -17,5 +18,7 @@ public interface TaskMapper {
     TaskDTO taskToTaskDTO(Task task);
 
     List<TaskDTO> listTaskToListTaskDTO(List<Task> taskList);
+
+    Task createOrUpdateTaskDtoToTask(CreateOrUpdateTaskDTO createOrUpdateTaskDTO);
 
 }

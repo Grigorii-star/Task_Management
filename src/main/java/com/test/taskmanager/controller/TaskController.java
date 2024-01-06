@@ -7,6 +7,8 @@ import com.test.taskmanager.service.interf.TaskService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -17,8 +19,9 @@ public class TaskController {
     private final TaskService taskService;
 
     @PostMapping
-    public ResponseEntity<TaskDTO> addTask(@RequestBody CreateOrUpdateTaskDTO properties) {
-        return new ResponseEntity<>(taskService.addTask(properties), HttpStatus.CREATED);
+    public ResponseEntity<TaskDTO> addTask(@RequestBody CreateOrUpdateTaskDTO properties,
+                                           @AuthenticationPrincipal UserDetails userDetails) {
+        return new ResponseEntity<>(taskService.addTask(properties, userDetails), HttpStatus.CREATED);
     }
 
     @GetMapping(value = "/{taskId}")

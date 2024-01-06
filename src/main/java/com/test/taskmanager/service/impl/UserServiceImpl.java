@@ -5,6 +5,7 @@ import com.test.taskmanager.dto.user.RegisterDTO;
 import com.test.taskmanager.entity.User;
 import com.test.taskmanager.enums.Role;
 import com.test.taskmanager.repository.UserRepository;
+import com.test.taskmanager.security.JwtService;
 import com.test.taskmanager.service.interf.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,6 +24,7 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
     @Override
     public boolean register(RegisterDTO register) {
         Optional<User> foundedUser = userRepository.findByEmail(register.getEmail());
@@ -36,6 +38,9 @@ public class UserServiceImpl implements UserService {
                 .role(Role.USER)
                 .build();
         User savedUser = userRepository.save(newUser);
+
+        String jwtToken = jwtService.generateToken(newUser);
+        log.info("Register jwt token: {}", jwtToken);
         log.info("In register - user: {} successfully registered.", savedUser);
         return true;
         } else {
@@ -52,6 +57,10 @@ public class UserServiceImpl implements UserService {
                         login.getPassword()
                 )
         );
+
+        User user = userRepository.findByEmail(login.getEmail()).orElseThrow();
+        String jwtToken = jwtService.generateToken(user);
+        log.info("Login jwt token: {}", jwtToken);
     }
 
 }
