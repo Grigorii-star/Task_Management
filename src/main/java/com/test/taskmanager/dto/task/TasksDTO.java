@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class TasksDTO {
 
-    private Long count;
+    private Integer count;
     private List<TaskDTO> tasks;
 
 }

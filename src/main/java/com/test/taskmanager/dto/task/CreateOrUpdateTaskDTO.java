@@ -17,7 +17,6 @@ public class CreateOrUpdateTaskDTO {
     private String description;
     private Status status;
     private Priority priority;
-    private String performerFirstName;
-    private String performerLastName;
+    private Long performerId;
 
 }
