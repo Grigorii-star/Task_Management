@@ -7,6 +7,8 @@ import com.test.taskmanager.service.interf.CommentService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -18,8 +20,9 @@ public class CommentController {
 
     @PostMapping("/{taskId}/comments")
     public ResponseEntity<CommentDTO> addComment(@PathVariable Long taskId,
-                                                 @RequestBody CreateOrUpdateCommentDTO properties) {
-        return new ResponseEntity<>(commentService.addComment(taskId, properties), HttpStatus.CREATED);
+                                                 @RequestBody CreateOrUpdateCommentDTO properties,
+                                                 @AuthenticationPrincipal UserDetails userDetails) {
+        return new ResponseEntity<>(commentService.addComment(taskId, properties, userDetails), HttpStatus.CREATED);
     }
 
     @GetMapping("/{taskId}/comments")

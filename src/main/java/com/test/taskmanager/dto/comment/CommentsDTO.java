@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 public class CommentsDTO {
 
-    private Long count;
+    private Integer count;
     private List<CommentDTO> comments;
 
 }
