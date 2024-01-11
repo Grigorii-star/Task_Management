@@ -40,7 +40,7 @@ public class Task {
     @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
     private Collection<Comment> comments;
 
-    @OneToMany(mappedBy = "task")
-    private Collection<User> performers;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL)
+    private Collection<Performer> performers;
 
 }

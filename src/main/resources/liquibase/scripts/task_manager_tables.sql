@@ -7,8 +7,7 @@ CREATE TABLE users (
     last_name           text,
     email               text,
     password            text,
-    role                text,
-    task_id             bigint
+    role                text
 );
 
 -- changeset grigorii:create-tasks-table
@@ -26,5 +25,14 @@ CREATE TABLE comments (
     id                  bigserial PRIMARY KEY,
     text                text,
     user_id             bigint,
+    task_id             bigint
+);
+
+-- changeset grigorii:create-performers-table
+CREATE TABLE performers (
+    id                  bigserial PRIMARY KEY,
+    first_name          text,
+    last_name           text,
+    email               text,
     task_id             bigint
 );

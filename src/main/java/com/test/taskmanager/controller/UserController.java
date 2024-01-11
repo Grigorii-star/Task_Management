@@ -16,7 +16,7 @@ public class UserController {
 
     private final UserService userService;
 
-    @PostMapping("/register")
+    @PostMapping(value = "/register")
     public ResponseEntity<?> register (@RequestBody RegisterDTO register) {
         if (userService.register(register)) {
             return ResponseEntity.status(HttpStatus.CREATED).build();
@@ -25,7 +25,7 @@ public class UserController {
         }
     }
 
-    @PostMapping("/login")
+    @PostMapping(value = "/login")
     public ResponseEntity<?> login(@RequestBody LoginDTO login) {
         userService.login(login);
         return new ResponseEntity<>(HttpStatus.OK);

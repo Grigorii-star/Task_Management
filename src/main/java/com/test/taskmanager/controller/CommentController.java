@@ -18,26 +18,26 @@ public class CommentController {
 
     private final CommentService commentService;
 
-    @PostMapping("/{taskId}/comments")
+    @PostMapping(value = "/{taskId}/comments")
     public ResponseEntity<CommentDTO> addComment(@PathVariable Long taskId,
                                                  @RequestBody CreateOrUpdateCommentDTO properties,
                                                  @AuthenticationPrincipal UserDetails userDetails) {
         return new ResponseEntity<>(commentService.addComment(taskId, properties, userDetails), HttpStatus.CREATED);
     }
 
-    @GetMapping("/{taskId}/comments")
+    @GetMapping(value = "/{taskId}/comments")
     public ResponseEntity<CommentsDTO> getComments(@PathVariable Long taskId) {
         return new ResponseEntity<>(commentService.getComments(taskId), HttpStatus.OK);
     }
 
-    @PatchMapping("/{taskId}/comments/{commentId}")
+    @PatchMapping(value = "/{taskId}/comments/{commentId}")
     public ResponseEntity<CommentDTO> updateComment(@PathVariable Long taskId,
                                                     @PathVariable Long commentId,
                                                     @RequestBody CreateOrUpdateCommentDTO properties) {
         return new ResponseEntity<>(commentService.updateComment(taskId, commentId, properties), HttpStatus.OK);
     }
 
-    @DeleteMapping("/{taskId}/comments/{commentId}")
+    @DeleteMapping(value = "/{taskId}/comments/{commentId}")
     public ResponseEntity<Void> removeComment(@PathVariable Long taskId,
                                               @PathVariable Long commentId) {
         commentService.removeComment(taskId, commentId);

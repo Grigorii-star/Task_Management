@@ -3,6 +3,7 @@ package com.test.taskmanager.service.impl;
 import com.test.taskmanager.dto.task.CreateOrUpdateTaskDTO;
 import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
 import com.test.taskmanager.exception.TaskNotFoundException;
@@ -10,6 +11,7 @@ import com.test.taskmanager.exception.UserNotFoundException;
 import com.test.taskmanager.mapper.TaskMapper;
 import com.test.taskmanager.repository.TaskRepository;
 import com.test.taskmanager.repository.UserRepository;
+import com.test.taskmanager.service.interf.PerformerService;
 import com.test.taskmanager.service.interf.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +19,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -25,8 +27,9 @@ import java.util.List;
 public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
-    private final TaskMapper taskMapper;
     private final UserRepository userRepository;
+    private final TaskMapper taskMapper;
+    private final PerformerService performerService;
 
     @Override
     public TaskDTO addTask(CreateOrUpdateTaskDTO properties, UserDetails userDetails) {
@@ -34,16 +37,19 @@ public class TaskServiceImpl implements TaskService {
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         newTask.setUser(user);
-        Task task = taskRepository.save(newTask);
+        taskRepository.save(newTask);
 
         if (properties.getPerformerId() != null) {
-            User taskPerformer = findUser(properties.getPerformerId());
-            taskPerformer.setTask(newTask);
-            userRepository.save(taskPerformer);
+            List<Performer> performerList = performerService.addPerformerToNewTask(
+                    newTask,
+                    properties.getPerformerId()
+            );
+            newTask.setPerformers(performerList);
+            taskRepository.save(newTask);
         }
 
         log.info("In add task - new task successfully created.");
-        return taskMapper.taskToTaskDTO(taskRepository.getReferenceById(task.getId()));
+        return taskMapper.taskToTaskDTO(newTask);
     }
 
     @Override
