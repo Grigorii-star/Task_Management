@@ -6,19 +6,16 @@ import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
 import com.test.taskmanager.enums.Status;
-import com.test.taskmanager.exception.TaskNotFoundException;
-import com.test.taskmanager.exception.UserNotFoundException;
 import com.test.taskmanager.mapper.TaskMapper;
 import com.test.taskmanager.repository.TaskRepository;
 import com.test.taskmanager.repository.UserRepository;
 import com.test.taskmanager.service.interf.PerformerService;
 import com.test.taskmanager.service.interf.TaskService;
+import com.test.taskmanager.utility.FindEntity;
+import com.test.taskmanager.utility.PageBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -32,7 +29,9 @@ public class TaskServiceImpl implements TaskService {
 
     private final TaskRepository taskRepository;
     private final UserRepository userRepository;
+    private final FindEntity findEntity;
     private final TaskMapper taskMapper;
+    private final PageBuilder pageBuilder;
     private final PerformerService performerService;
 
     @Override
@@ -58,7 +57,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO getTask(Long taskId) {
-        Task task = findTask(taskId);
+        Task task = findEntity.findTask(taskId);
 
         log.info("In get task - task with id {}, successfully founded.", taskId);
         return taskMapper.taskToTaskDTO(task);
@@ -66,22 +65,16 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public Page<TaskDTO> getTasks(Long userId, Integer pageNumber, Integer pageSize) {
-        User user = findUser(userId);
+        User user = findEntity.findUser(userId);
         List<Task> taskList = (List<Task>) user.getTasks();
 
-        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
-        List<TaskDTO> allTasks = taskMapper.listTaskToListTaskDTO(taskList);
-        int start = (int) pageRequest.getOffset();
-        int end = Math.min((start + pageRequest.getPageSize()), allTasks.size());
-        List<TaskDTO> pageContent = allTasks.subList(start, end);
-
         log.info("In get tasks - tasks successfully got.");
-        return new PageImpl<>(pageContent, pageRequest, allTasks.size());
+        return pageBuilder.createPage(taskList, pageNumber, pageSize);
     }
 
     @Override
     public TaskDTO updateTask(Long taskId, CreateOrUpdateTaskDTO properties) {
-        Task task = findTask(taskId);
+        Task task = findEntity.findTask(taskId);
         Task newTask = taskMapper.createOrUpdateTaskDtoToTask(properties);
         newTask.setId(task.getId());
         newTask.setUser(task.getUser());
@@ -93,7 +86,7 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public TaskDTO updateStatus(Long taskId, Status status) {
-        Task task = findTask(taskId);
+        Task task = findEntity.findTask(taskId);
         task.setStatus(status);
         Task savedTask = taskRepository.save(task);
 
@@ -103,20 +96,10 @@ public class TaskServiceImpl implements TaskService {
 
     @Override
     public void removeTask(Long taskId) {
-        Task task = findTask(taskId);
+        Task task = findEntity.findTask(taskId);
         taskRepository.delete(task);
 
         log.info("In remove task - task successfully deleted.");
-    }
-
-    private User findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-    }
-
-    private Task findTask(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 
 }
