@@ -36,3 +36,13 @@ CREATE TABLE performers (
     email               text,
     task_id             bigint
 );
+
+-- changeset grigorii:create-tokens-table
+CREATE TABLE tokens (
+    id                  bigserial PRIMARY KEY,
+    token               text,
+    token_type          text,
+    expired             boolean,
+    revoked             boolean,
+    user_id             bigint
+);

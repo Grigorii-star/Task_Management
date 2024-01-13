@@ -40,6 +40,9 @@ public class User implements UserDetails {
     private Role role;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private Collection<Token> tokens;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Collection<Task> tasks;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
