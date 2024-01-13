@@ -1,5 +1,6 @@
 package com.test.taskmanager.controller;
 
+import com.test.taskmanager.dto.AuthenticationResponse;
 import com.test.taskmanager.dto.user.LoginDTO;
 import com.test.taskmanager.dto.user.RegisterDTO;
 import com.test.taskmanager.service.interf.UserService;
@@ -70,12 +71,8 @@ public class UserController {
             tags = "User controller"
     )
     @PostMapping(value = "/register")
-    public ResponseEntity<?> register (@RequestBody RegisterDTO register) {
-        if (userService.register(register)) {
-            return ResponseEntity.status(HttpStatus.CREATED).build();
-        } else {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
-        }
+    public ResponseEntity<AuthenticationResponse> register (@RequestBody RegisterDTO register) {
+        return new ResponseEntity<>(userService.register(register), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -121,9 +118,8 @@ public class UserController {
             tags = "User controller"
     )
     @PostMapping(value = "/login")
-    public ResponseEntity<?> login(@RequestBody LoginDTO login) {
-        userService.login(login);
-        return new ResponseEntity<>(HttpStatus.OK);
+    public ResponseEntity<AuthenticationResponse> login(@RequestBody LoginDTO login) {
+        return new ResponseEntity<>(userService.login(login), HttpStatus.OK);
     }
 
 }
