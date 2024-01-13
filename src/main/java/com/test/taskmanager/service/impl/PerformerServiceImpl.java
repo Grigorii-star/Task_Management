@@ -1,21 +1,18 @@
 package com.test.taskmanager.service.impl;
 
-import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
-import com.test.taskmanager.dto.user.PerformerEmailDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
-import com.test.taskmanager.exception.TaskNotFoundException;
-import com.test.taskmanager.exception.UserNotFoundException;
-import com.test.taskmanager.mapper.TaskMapper;
 import com.test.taskmanager.mapper.UserMapper;
 import com.test.taskmanager.repository.PerformerRepository;
-import com.test.taskmanager.repository.TaskRepository;
-import com.test.taskmanager.repository.UserRepository;
 import com.test.taskmanager.service.interf.PerformerService;
+import com.test.taskmanager.utility.FindEntity;
+import com.test.taskmanager.utility.PageBuilder;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -27,14 +24,13 @@ import java.util.List;
 public class PerformerServiceImpl implements PerformerService {
 
     private final PerformerRepository performerRepository;
-    private final TaskRepository taskRepository;
-    private final UserRepository userRepository;
+    private final FindEntity findEntity;
     private final UserMapper userMapper;
-    private final TaskMapper taskMapper;
+    private final PageBuilder pageBuilder;
 
     @Override
     public List<Performer> addPerformerToNewTask(Task task, Long userId) {
-        User taskPerformer = findUser(userId);
+        User taskPerformer = findEntity.findUser(userId);
         Performer performer = createPerformer(task, taskPerformer);
         Performer savedPerformer = performerRepository.save(performer);
         List<Performer> performerList = new ArrayList<>();
@@ -46,8 +42,8 @@ public class PerformerServiceImpl implements PerformerService {
 
     @Override
     public PerformerDTO addPerformer(Long taskId, Long userId) {
-        Task task = findTask(taskId);
-        User user = findUser(userId);
+        Task task = findEntity.findTask(taskId);
+        User user = findEntity.findUser(userId);
         Performer performer = createPerformer(task, user);
         performerRepository.save(performer);
 
@@ -56,40 +52,26 @@ public class PerformerServiceImpl implements PerformerService {
     }
 
     @Override
-    public TasksDTO getPerformersTasks(PerformerEmailDTO emailDTO) {
-        List<Performer> performerList = performerRepository.findByEmail(emailDTO.getPerformerEmail());
-        List<Task> tasks = performerList.stream()
+    public Page<TaskDTO> getPerformersTasks(String performerEmail, Integer pageNumber, Integer pageSize) {
+        List<Performer> performerList = performerRepository.findByEmail(performerEmail);
+        List<Task> taskList = performerList.stream()
                 .map(Performer::getTask)
                 .distinct()
                 .toList();
-        Integer tasksCount = tasks.size();
 
         log.info("In get performers tasks - tasks successfully got.");
-        return TasksDTO.builder()
-                .count(tasksCount)
-                .tasks(taskMapper.listTaskToListTaskDTO(tasks))
-                .build();
+        return pageBuilder.createPage(taskList, pageNumber, pageSize);
     }
 
     @Override
-    public void removePerformer(Long taskId, PerformerEmailDTO emailDTO) {
-        Task task = findTask(taskId);
+    public void removePerformer(Long taskId, String performerEmail) {
+        Task task = findEntity.findTask(taskId);
         List<Performer> performerList = task.getPerformers().stream()
-                .filter(performer -> performer.getEmail().equals(emailDTO.getPerformerEmail()))
+                .filter(performer -> performer.getEmail().equals(performerEmail))
                 .toList();
         performerRepository.deleteAll(performerList);
 
         log.info("In remove performer - performer successfully deleted.");
-    }
-
-    private User findUser(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new UserNotFoundException("User not found"));
-    }
-
-    private Task findTask(Long taskId) {
-        return taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
 
     private Performer createPerformer(Task task, User user) {

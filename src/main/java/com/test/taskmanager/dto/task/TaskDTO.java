@@ -1,5 +1,6 @@
 package com.test.taskmanager.dto.task;
 
+import com.test.taskmanager.dto.comment.CommentDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
 import com.test.taskmanager.enums.Priority;
 import com.test.taskmanager.enums.Status;
@@ -8,6 +9,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
 import java.util.Set;
 
 @Data
@@ -24,6 +26,7 @@ public class TaskDTO {
     private String description;
     private Status status;
     private Priority priority;
+    private List<CommentDTO> comments;
     private Set<PerformerDTO> performers;
 
 }

@@ -1,10 +1,10 @@
 package com.test.taskmanager.service.interf;
 
-import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
-import com.test.taskmanager.dto.user.PerformerEmailDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -14,8 +14,8 @@ public interface PerformerService {
 
     PerformerDTO addPerformer(Long taskId, Long userId);
 
-    TasksDTO getPerformersTasks(PerformerEmailDTO emailDTO);
+    Page<TaskDTO> getPerformersTasks(String performerEmail, Integer pageNumber, Integer pageSize);
 
-    void removePerformer(Long taskId, PerformerEmailDTO emailDTO);
+    void removePerformer(Long taskId, String performerEmail);
 
 }
