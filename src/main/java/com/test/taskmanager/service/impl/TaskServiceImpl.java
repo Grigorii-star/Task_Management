@@ -6,6 +6,7 @@ import com.test.taskmanager.dto.task.TasksDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
+import com.test.taskmanager.enums.Status;
 import com.test.taskmanager.exception.TaskNotFoundException;
 import com.test.taskmanager.exception.UserNotFoundException;
 import com.test.taskmanager.mapper.TaskMapper;
@@ -32,24 +33,24 @@ public class TaskServiceImpl implements TaskService {
     private final PerformerService performerService;
 
     @Override
-    public TaskDTO addTask(CreateOrUpdateTaskDTO properties, UserDetails userDetails) {
+    public TaskDTO addTask(CreateOrUpdateTaskDTO properties, Long performerId, UserDetails userDetails) {
         Task newTask = taskMapper.createOrUpdateTaskDtoToTask(properties);
         User user = userRepository.findByEmail(userDetails.getUsername())
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         newTask.setUser(user);
-        taskRepository.save(newTask);
+        Task savedTask = taskRepository.save(newTask);
 
-        if (properties.getPerformerId() != null) {
+        if (performerId != null) {
             List<Performer> performerList = performerService.addPerformerToNewTask(
-                    newTask,
-                    properties.getPerformerId()
+                    savedTask,
+                    performerId
             );
-            newTask.setPerformers(performerList);
-            taskRepository.save(newTask);
+            savedTask.setPerformers(performerList);
+            taskRepository.save(savedTask);
         }
 
         log.info("In add task - new task successfully created.");
-        return taskMapper.taskToTaskDTO(newTask);
+        return taskMapper.taskToTaskDTO(savedTask);
     }
 
     @Override
@@ -83,6 +84,16 @@ public class TaskServiceImpl implements TaskService {
 
         log.info("In update task - task successfully updated.");
         return taskMapper.taskToTaskDTO(updatedTask);
+    }
+
+    @Override
+    public TaskDTO updateStatus(Long taskId, Status status) {
+        Task task = findTask(taskId);
+        task.setStatus(status);
+        Task savedTask = taskRepository.save(task);
+
+        log.info("In update status - status successfully updated.");
+        return taskMapper.taskToTaskDTO(savedTask);
     }
 
     @Override

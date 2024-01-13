@@ -3,6 +3,7 @@ package com.test.taskmanager.controller;
 import com.test.taskmanager.dto.task.CreateOrUpdateTaskDTO;
 import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.enums.Status;
 import com.test.taskmanager.service.interf.TaskService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -83,10 +84,11 @@ public class TaskController {
             },
             tags = "Task controller"
     )
-    @PostMapping
+    @PostMapping(value = "/{performerId}")
     public ResponseEntity<TaskDTO> addTask(@RequestBody CreateOrUpdateTaskDTO properties,
+                                           @PathVariable Long performerId,
                                            @AuthenticationPrincipal UserDetails userDetails) {
-        return new ResponseEntity<>(taskService.addTask(properties, userDetails), HttpStatus.CREATED);
+        return new ResponseEntity<>(taskService.addTask(properties, performerId, userDetails), HttpStatus.CREATED);
     }
 
     @Operation(
@@ -229,6 +231,64 @@ public class TaskController {
     public ResponseEntity<TaskDTO> updateTask(@PathVariable Long taskId,
                                               @RequestBody CreateOrUpdateTaskDTO properties) {
         return new ResponseEntity<>(taskService.updateTask(taskId, properties), HttpStatus.OK);
+    }
+
+    @Operation(
+            summary = "UPDATE STATUS",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    description = "Examples of field for an updated status",
+                    content = @Content(
+                            schema = @Schema(implementation = Status.class),
+                            mediaType = MediaType.APPLICATION_JSON_VALUE,
+                            examples = {
+                                    @ExampleObject(
+                                            name = "PENDING"
+                                    ),
+                                    @ExampleObject(
+                                            name = "IN_PROGRESS"
+                                    ),
+                                    @ExampleObject(
+                                            name = "COMPLETED"
+                                    )
+                            }
+                    )
+            ),
+            responses = {
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "200",
+                            description = "Status successfully updated",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "403",
+                            description = "Authorisation Error",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "404",
+                            description = "Incorrect data provided",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    ),
+                    @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                            responseCode = "500",
+                            description = "Status update error",
+                            content = @Content(
+                                    mediaType = MediaType.APPLICATION_JSON_VALUE
+                            )
+                    )
+            },
+            tags = "Task controller"
+    )
+    @PatchMapping(value = "/{taskId}/status")
+    public ResponseEntity<TaskDTO> updateStatus(@PathVariable Long taskId,
+                                                @RequestBody Status status) {
+        return new ResponseEntity<>(taskService.updateStatus(taskId, status), HttpStatus.OK);
     }
 
     @Operation(

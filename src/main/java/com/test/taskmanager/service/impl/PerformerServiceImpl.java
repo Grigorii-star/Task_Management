@@ -2,7 +2,6 @@ package com.test.taskmanager.service.impl;
 
 import com.test.taskmanager.dto.task.TasksDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
-import com.test.taskmanager.dto.user.PerformerEmailDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
@@ -56,8 +55,8 @@ public class PerformerServiceImpl implements PerformerService {
     }
 
     @Override
-    public TasksDTO getPerformersTasks(PerformerEmailDTO emailDTO) {
-        List<Performer> performerList = performerRepository.findByEmail(emailDTO.getPerformerEmail());
+    public TasksDTO getPerformersTasks(String performerEmail) {
+        List<Performer> performerList = performerRepository.findByEmail(performerEmail);
         List<Task> tasks = performerList.stream()
                 .map(Performer::getTask)
                 .distinct()
@@ -72,10 +71,10 @@ public class PerformerServiceImpl implements PerformerService {
     }
 
     @Override
-    public void removePerformer(Long taskId, PerformerEmailDTO emailDTO) {
+    public void removePerformer(Long taskId, String performerEmail) {
         Task task = findTask(taskId);
         List<Performer> performerList = task.getPerformers().stream()
-                .filter(performer -> performer.getEmail().equals(emailDTO.getPerformerEmail()))
+                .filter(performer -> performer.getEmail().equals(performerEmail))
                 .toList();
         performerRepository.deleteAll(performerList);
 
