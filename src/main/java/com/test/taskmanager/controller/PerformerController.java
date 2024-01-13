@@ -1,12 +1,14 @@
 package com.test.taskmanager.controller;
 
-import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
 import com.test.taskmanager.service.interf.PerformerService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -95,8 +97,17 @@ public class PerformerController {
             tags = "Performer controller"
     )
     @GetMapping(value = "/performers")
-    public ResponseEntity<TasksDTO> getPerformersTasks(@RequestParam String performerEmail) {
-        return new ResponseEntity<>(performerService.getPerformersTasks(performerEmail), HttpStatus.OK);
+    public ResponseEntity<Page<TaskDTO>> getPerformersTasks(@RequestParam String performerEmail,
+                                                            @RequestParam (defaultValue = "0") Integer page,
+                                                            @RequestParam (defaultValue = "5") Integer size) {
+        Page<TaskDTO> taskDTOPage = performerService.getPerformersTasks(performerEmail, page, size);
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("X-Page-Number", String.valueOf(taskDTOPage.getNumber()));
+        headers.add("X-Page-Size", String.valueOf(taskDTOPage.getSize()));
+
+        return ResponseEntity.ok()
+                .headers(headers)
+                .body(taskDTOPage);
     }
 
     @Operation(

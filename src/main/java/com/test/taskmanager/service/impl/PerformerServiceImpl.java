@@ -1,6 +1,6 @@
 package com.test.taskmanager.service.impl;
 
-import com.test.taskmanager.dto.task.TasksDTO;
+import com.test.taskmanager.dto.task.TaskDTO;
 import com.test.taskmanager.dto.user.PerformerDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
@@ -15,6 +15,10 @@ import com.test.taskmanager.repository.UserRepository;
 import com.test.taskmanager.service.interf.PerformerService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -55,19 +59,21 @@ public class PerformerServiceImpl implements PerformerService {
     }
 
     @Override
-    public TasksDTO getPerformersTasks(String performerEmail) {
+    public Page<TaskDTO> getPerformersTasks(String performerEmail, Integer pageNumber, Integer pageSize) {
         List<Performer> performerList = performerRepository.findByEmail(performerEmail);
-        List<Task> tasks = performerList.stream()
+        List<Task> taskList = performerList.stream()
                 .map(Performer::getTask)
                 .distinct()
                 .toList();
-        Integer tasksCount = tasks.size();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+        List<TaskDTO> allTasks = taskMapper.listTaskToListTaskDTO(taskList);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), allTasks.size());
+        List<TaskDTO> pageContent = allTasks.subList(start, end);
 
         log.info("In get performers tasks - tasks successfully got.");
-        return TasksDTO.builder()
-                .count(tasksCount)
-                .tasks(taskMapper.listTaskToListTaskDTO(tasks))
-                .build();
+        return new PageImpl<>(pageContent, pageRequest, allTasks.size());
     }
 
     @Override

@@ -2,7 +2,6 @@ package com.test.taskmanager.service.impl;
 
 import com.test.taskmanager.dto.task.CreateOrUpdateTaskDTO;
 import com.test.taskmanager.dto.task.TaskDTO;
-import com.test.taskmanager.dto.task.TasksDTO;
 import com.test.taskmanager.entity.Performer;
 import com.test.taskmanager.entity.Task;
 import com.test.taskmanager.entity.User;
@@ -16,6 +15,10 @@ import com.test.taskmanager.service.interf.PerformerService;
 import com.test.taskmanager.service.interf.TaskService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -62,16 +65,18 @@ public class TaskServiceImpl implements TaskService {
     }
 
     @Override
-    public TasksDTO getTasks(Long userId) {
+    public Page<TaskDTO> getTasks(Long userId, Integer pageNumber, Integer pageSize) {
         User user = findUser(userId);
         List<Task> taskList = (List<Task>) user.getTasks();
-        Integer tasksCount = taskList.size();
+
+        Pageable pageRequest = PageRequest.of(pageNumber, pageSize);
+        List<TaskDTO> allTasks = taskMapper.listTaskToListTaskDTO(taskList);
+        int start = (int) pageRequest.getOffset();
+        int end = Math.min((start + pageRequest.getPageSize()), allTasks.size());
+        List<TaskDTO> pageContent = allTasks.subList(start, end);
 
         log.info("In get tasks - tasks successfully got.");
-        return TasksDTO.builder()
-                .count(tasksCount)
-                .tasks(taskMapper.listTaskToListTaskDTO(taskList))
-                .build();
+        return new PageImpl<>(pageContent, pageRequest, allTasks.size());
     }
 
     @Override
@@ -108,8 +113,10 @@ public class TaskServiceImpl implements TaskService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
     }
+
     private Task findTask(Long taskId) {
         return taskRepository.findById(taskId)
                 .orElseThrow(() -> new TaskNotFoundException("Task not found"));
     }
+
 }
